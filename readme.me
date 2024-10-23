@@ -1,0 +1,91 @@
+Automated Ticket Booking System
+
+Overview
+The Automated Ticket Booking System is a Java-based application that allows users to book tickets for movies and concerts, select seats, and process payments. The system includes features like seat availability management, ticket booking, payment processing, and file handling for storing and retrieving booking information.
+
+Features
+•	Ticket Types: Supports both movie and concert ticket bookings.
+•	Seat Selection: Users can select available seats during the booking process.
+•	Exception Handling: Handles cases like seat unavailability and invalid payment details.
+•	Multithreading: Simulates multiple users booking tickets simultaneously.
+•	File Handling: Saves booking details and retrieves them from a file.
+
+Key Concepts
+  •	Inheritance:
+    o	MovieTicket and ConcertTicket inherit from the base Ticket class.
+  •	Inner Class:
+    o	The SeatSelector class is an inner class in BookingManager for managing seat selection.
+  •	Exception Handling:
+    o	Custom exceptions: SeatUnavailableException and InvalidPaymentDetailsException.
+  •	Multithreading:
+    o	Two threads simulate multiple users booking tickets at the same time.
+  •	Collection API:
+    o	Uses Map for managing booked tickets and seat availability.
+  •	File Handling:
+    o	Booking details are saved to and loaded from a file.
+
+Classes and Methods
+1. Ticket (Base Class)
+  •	Represents a generic ticket with fields like ticketId, eventName, date, and price.
+  •	Abstract method displayTicketInfo() to be implemented by subclasses.
+2. MovieTicket and ConcertTicket (Subclasses of Ticket)
+  •	Implement the displayTicketInfo() method to display details specific to movie or concert tickets.
+3. SeatUnavailableException and InvalidPaymentDetailsException
+  •	Custom exceptions used to handle seat unavailability and invalid payment details, respectively.
+4. BookingManager
+  •	Manages the booking process and seat availability.
+  •	Inner Class SeatSelector: Handles seat selection logic.
+  •	Methods:
+    o	bookTicket(Ticket ticket, String seatNumber): Books a ticket and assigns a seat.
+    o	saveBookingsToFile(String filename): Saves all bookings to a file.
+    o	loadBookingsFromFile(String filename): Loads bookings from a file.
+    o	processPayment(String paymentDetails): Mock method to simulate payment processing.
+5. AutomatedTicketBookingSystem (Main Class)
+  •	Demonstrates the booking process for both movie and concert tickets.
+  •	Simulates two users booking tickets concurrently using threads.
+  •	Saves booking details to a file and loads them.
+
+Code Structure
+bash
+Copy code
+src/
+  │
+    ├── in/ac/adit/pwj/miniproject/booking/
+    │   ├── Ticket.java
+      │   ├── MovieTicket.java
+        │   ├── ConcertTicket.java
+          │   ├── SeatUnavailableException.java
+            │   ├── InvalidPaymentDetailsException.java
+              │   ├── BookingManager.java
+                │   └── AutomatedTicketBookingSystem.java
+                    └── bookings.dat  # File where booking data is saved
+
+How to Run
+1.	Compile the code:
+  bash
+  Copy code
+  javac -d . AutomatedTicketBookingSystem.java
+2.	Run the program:
+  bash
+  Copy code
+  java in.ac.adit.pwj.miniproject.booking.AutomatedTicketBookingSystem
+  Example Output
+  less
+
+Copy code
+  Seat-1 successfully booked.
+  Ticket booked for: Inception
+  Payment processed for: Credit Card
+  Seat Seat-1 is unavailable.
+  Booking details saved.
+  Booking details loaded.
+
+Future Improvements
+  •	Add a user interface for ticket booking.
+  •	Integrate real payment processing methods.
+  •	Extend ticket types (e.g., travel tickets).
+
+________________________________________
+
+This README provides a brief description of the Automated Ticket Booking System. For more details, refer to the source code comments and class methods.
+
