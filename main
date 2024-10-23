@@ -1,0 +1,181 @@
+
+import java.util.*;
+import java.io.*;
+
+// Base Class: Ticket
+abstract class Ticket implements Serializable {
+    protected String ticketId;
+    protected String eventName;
+    protected String date;
+    protected double price;
+
+    public Ticket(String ticketId, String eventName, String date, double price) {
+        this.ticketId = ticketId;
+        this.eventName = eventName;
+        this.date = date;
+        this.price = price;
+    }
+
+    public String getTicketId() {
+        return ticketId;
+    }
+
+    public String getEventName() {
+        return eventName;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public abstract void displayTicketInfo();
+}
+
+// Subclass: MovieTicket
+class MovieTicket extends Ticket {
+    public MovieTicket(String ticketId, String movieName, String date, double price) {
+        super(ticketId, movieName, date, price);
+    }
+
+    @Override
+    public void displayTicketInfo() {
+        System.out.println("Movie Ticket: " + eventName + ", Date: " + date + ", Price: $" + price);
+    }
+}
+
+// Subclass: ConcertTicket
+class ConcertTicket extends Ticket {
+    public ConcertTicket(String ticketId, String concertName, String date, double price) {
+        super(ticketId, concertName, date, price);
+    }
+
+    @Override
+    public void displayTicketInfo() {
+        System.out.println("Concert Ticket: " + eventName + ", Date: " + date + ", Price: $" + price);
+    }
+}
+
+// Custom Exception: SeatUnavailableException
+class SeatUnavailableException extends Exception {
+    public SeatUnavailableException(String message) {
+        super(message);
+    }
+}
+
+// Custom Exception: InvalidPaymentDetailsException
+class InvalidPaymentDetailsException extends Exception {
+    public InvalidPaymentDetailsException(String message) {
+        super(message);
+    }
+}
+
+// BookingManager class manages booking operations
+class BookingManager {
+    private Map<String, Ticket> bookedTickets = new HashMap<>();
+    private Map<String, Boolean> seatAvailability = new HashMap<>();
+    
+    // Constructor to initialize seat availability
+    public BookingManager() {
+        // Initialize seat availability
+        for (int i = 1; i <= 50; i++) {
+            seatAvailability.put("Seat-" + i, true); // All seats available at the beginning
+        }
+    }
+
+    // Inner Class for Seat Selection Management
+    public class SeatSelector {
+        public void selectSeat(String seatNumber) throws SeatUnavailableException {
+            if (seatAvailability.containsKey(seatNumber) && seatAvailability.get(seatNumber)) {
+                seatAvailability.put(seatNumber, false);
+                System.out.println(seatNumber + " successfully booked.");
+            } else {
+                throw new SeatUnavailableException("Seat " + seatNumber + " is unavailable.");
+            }
+        }
+    }
+
+    // Method to book a ticket
+    public void bookTicket(Ticket ticket, String seatNumber) throws SeatUnavailableException {
+        SeatSelector seatSelector = new SeatSelector();
+        seatSelector.selectSeat(seatNumber);
+        bookedTickets.put(ticket.getTicketId(), ticket);
+        System.out.println("Ticket booked for: " + ticket.getEventName());
+    }
+
+    // Method to save booking details to file
+    public void saveBookingsToFile(String filename) throws IOException {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
+            out.writeObject(bookedTickets);
+        }
+    }
+
+    // Method to load booking details from file
+    @SuppressWarnings("unchecked")
+    public void loadBookingsFromFile(String filename) throws IOException, ClassNotFoundException {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
+            bookedTickets = (Map<String, Ticket>) in.readObject();
+        }
+    }
+
+    // Method to handle payment process (just a mockup)
+    public void processPayment(String paymentDetails) throws InvalidPaymentDetailsException {
+        if (paymentDetails == null || paymentDetails.isEmpty()) {
+            throw new InvalidPaymentDetailsException("Invalid payment details provided.");
+        }
+        System.out.println("Payment processed for: " + paymentDetails);
+    }
+}
+
+// Main Class: AutomatedTicketBookingSystem
+public class AutomatedTicketBookingSystem {
+    public static void main(String[] args) {
+        BookingManager manager = new BookingManager();
+
+        // Creating movie and concert tickets
+        Ticket movieTicket = new MovieTicket("M123", "Inception", "2024-10-31", 12.50);
+        Ticket concertTicket = new ConcertTicket("C456", "Coldplay Live", "2024-12-01", 100.00);
+
+        // Simulating threading for multiple users booking simultaneously
+        Thread user1 = new Thread(() -> {
+            try {
+                manager.bookTicket(movieTicket, "Seat-1");
+                manager.processPayment("Credit Card");
+            } catch (SeatUnavailableException | InvalidPaymentDetailsException e) {
+                System.out.println(e.getMessage());
+            }
+        });
+
+        Thread user2 = new Thread(() -> {
+            try {
+                manager.bookTicket(concertTicket, "Seat-1");
+                manager.processPayment("PayPal");
+            } catch (SeatUnavailableException | InvalidPaymentDetailsException e) {
+                System.out.println(e.getMessage());
+            }
+        });
+
+        // Start threads
+        user1.start();
+        user2.start();
+
+        // Save booking details to file
+        try {
+            manager.saveBookingsToFile("bookings.dat");
+            System.out.println("Booking details saved.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Load booking details from file
+        try {
+            manager.loadBookingsFromFile("bookings.dat");
+            System.out.println("Booking details loaded.");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+}
